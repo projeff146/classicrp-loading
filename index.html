@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<!--
+  ClassicRP loading screen.
+
+  Garry's Mod shows this page while a player joins. It is one file with nothing to
+  download beside it: the logo is inside the page.
+
+  TO CHANGE IT: edit the SETTINGS block in the script near the bottom (server name, tips,
+  rules, links). Colours are the variables at the top of the style block and match
+  darkrp_modules/uitheme.
+
+  TO USE IT: host this file somewhere public and put its address in server.cfg:
+      sv_loadingurl "https://your-address/index.html?steamid=%s&map=%m"
+  See docs/review.md.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ClassicRP</title>
+<style>
+  :root {
+    --background: #12141a;
+    --panel: rgba(26, 29, 38, 0.82);
+    --border: #3a4052;
+    --text: #eceff5;
+    --muted: #949db0;
+    --accent: #5c9cff;
+    --accent-alt: #966eff;
+    --success: #54d094;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--background);
+    color: var(--text);
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    overflow: hidden;
+  }
+  /* Two soft glows drifting behind everything. */
+  .glow {
+    position: absolute; border-radius: 50%; filter: blur(110px); opacity: 0.32;
+    animation: drift 26s ease-in-out infinite alternate;
+  }
+  .glow.one { width: 620px; height: 620px; left: -160px; top: -180px; background: var(--accent); }
+  .glow.two { width: 560px; height: 560px; right: -140px; bottom: -200px; background: var(--accent-alt); animation-delay: -9s; }
+  @keyframes drift { from { transform: translate(0, 0); } to { transform: translate(70px, 50px); } }
+
+  .page { position: relative; height: 100%; display: flex; flex-direction: column; padding: 4vh 5vw; }
+
+  .top { display: flex; align-items: center; }
+  .top img { width: 96px; height: auto; margin-right: 22px; }
+  .name { font-size: 40px; font-weight: 700; letter-spacing: 0.5px; }
+  .name span {
+    background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .tagline { color: var(--muted); font-size: 17px; margin-top: 4px; }
+
+  .middle { flex: 1; display: flex; align-items: center; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 22px 26px; margin-right: 22px; flex: 1; min-height: 250px;
+  }
+  .card:last-child { margin-right: 0; }
+  .card h2 {
+    margin: 0 0 14px; font-size: 14px; font-weight: 600; letter-spacing: 1.6px;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .card h2:after {
+    content: ""; display: block; width: 36px; height: 2px; margin-top: 8px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+  }
+  .rules { margin: 0; padding-left: 20px; font-size: 16px; line-height: 1.75; }
+  .tip { font-size: 21px; line-height: 1.5; min-height: 96px; transition: opacity 0.5s; }
+  .facts { margin-top: 18px; font-size: 15px; color: var(--muted); line-height: 1.8; }
+  .facts b { color: var(--text); font-weight: 600; }
+
+  .bottom { }
+  .status { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 9px; }
+  .status .file { color: var(--muted); max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar { height: 10px; border-radius: 5px; background: rgba(58, 64, 82, 0.7); overflow: hidden; }
+  .fill {
+    height: 100%; width: 3%; border-radius: 5px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+    transition: width 0.4s ease;
+  }
+  .links { margin-top: 12px; font-size: 14px; color: var(--muted); }
+  .links b { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="glow one"></div>
+<div class="glow two"></div>
+
+<div class="page">
+  <div class="top">
+    <img alt="" src="data:image/png;base64,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">
+    <div>
+      <div class="name" id="name"></div>
+      <div class="tagline" id="tagline"></div>
+    </div>
+  </div>
+
+  <div class="middle">
+    <div class="card">
+      <h2>The short rules</h2>
+      <ol class="rules" id="rules"></ol>
+    </div>
+    <div class="card">
+      <h2>Did you know</h2>
+      <div class="tip" id="tip"></div>
+      <div class="facts">
+        Map: <b id="map">loading</b><br>
+        Slots: <b id="slots">64</b><br>
+        Gamemode: <b id="mode">DarkRP</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="status">
+      <span id="status">Connecting to the server</span>
+      <span class="file" id="file"></span>
+    </div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="links" id="links"></div>
+  </div>
+</div>
+
+<script>
+// ---------------------------------------------------------------- SETTINGS
+var SETTINGS = {
+    // The name is in two parts; the second is drawn in the highlight colours.
+    nameFirst: "Classic",
+    nameSecond: "RP",
+    tagline: "Classic DarkRP. Chill. Est. 2026.",
+
+    // Shown as a numbered list. Keep it to six or so short lines.
+    rules: [
+        "No random killing (RDM). Have a roleplay reason.",
+        "Type /advert Raid before you raid.",
+        "New Life Rule: after dying, stay away from where you died for 3 minutes.",
+        "No prop pushing, prop climbing or prop blocking.",
+        "Respect other players and listen to staff.",
+        "The full rules are in game: type /rules."
+    ],
+
+    // One is shown at a time.
+    tips: [
+        "Press F4 to pick a job, buy things and open your inventory.",
+        "Alt + E picks up weapons and product into your inventory.",
+        "Type /daily once a day for free money. Streaks pay more.",
+        "Money printers need batteries and cooling, and anyone can take the cash.",
+        "Thieves can pick pockets. Keep an eye on who is standing close.",
+        "Found a rule breaker? Type /report followed by who and what.",
+        "F4 > Settings changes the colour and size of your HUD.",
+        "Start a gang in F4 > Gang to show who you run with.",
+        "Type /tasks for three daily tasks that pay cash and XP.",
+        "Type /3p to switch between first and third person.",
+        "The spawn is a safe zone. Gang territory, under the red domes, is not.",
+        "Earn titles and cosmetics in F4 > Profile."
+    ],
+    tipSeconds: 7,
+
+    // Shown under the bar. Leave a value empty to hide it.
+    discord: "",
+    store: ""
+};
+// ---------------------------------------------------------------- end of settings
+
+function byId(id) { return document.getElementById(id); }
+
+byId("name").innerHTML = SETTINGS.nameFirst + "<span>" + SETTINGS.nameSecond + "</span>";
+byId("tagline").textContent = SETTINGS.tagline;
+
+var i, item;
+for (i = 0; i < SETTINGS.rules.length; i++) {
+    item = document.createElement("li");
+    item.textContent = SETTINGS.rules[i];
+    byId("rules").appendChild(item);
+}
+
+var links = [];
+if (SETTINGS.discord) { links.push("Discord: <b>" + SETTINGS.discord + "</b>"); }
+if (SETTINGS.store) { links.push("Store: <b>" + SETTINGS.store + "</b>"); }
+byId("links").innerHTML = links.join(" &nbsp;&middot;&nbsp; ");
+
+// Tips, one after another, starting from a random one.
+var tipIndex = Math.floor(Math.random() * SETTINGS.tips.length);
+function showTip() {
+    var tip = byId("tip");
+    tip.style.opacity = 0;
+    setTimeout(function () {
+        tip.textContent = SETTINGS.tips[tipIndex % SETTINGS.tips.length];
+        tip.style.opacity = 1;
+        tipIndex++;
+    }, 450);
+}
+showTip();
+setInterval(showTip, SETTINGS.tipSeconds * 1000);
+
+// The map can also come from the address (?map=%m), before the game tells us.
+var fromAddress = /[?&]map=([^&]+)/.exec(window.location.search);
+if (fromAddress && fromAddress[1].charAt(0) !== "%") { byId("map").textContent = decodeURIComponent(fromAddress[1]); }
+
+// ---------------------------------------------------------------- called by the game
+var filesTotal = 0, filesNeeded = 0;
+
+function progress() {
+    if (filesTotal <= 0) { return; }
+    var done = Math.max(filesTotal - filesNeeded, 0) / filesTotal;
+    byId("fill").style.width = Math.max(3, Math.min(100, Math.round(done * 100))) + "%";
+}
+
+function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+    if (mapname) { byId("map").textContent = mapname; }
+    if (maxplayers) { byId("slots").textContent = maxplayers; }
+    if (gamemode) { byId("mode").textContent = gamemode; }
+}
+
+function SetFilesTotal(total) { filesTotal = total; progress(); }
+function SetFilesNeeded(needed) { filesNeeded = needed; progress(); }
+
+function DownloadingFile(fileName) {
+    byId("file").textContent = fileName;
+    if (filesNeeded > 0) { filesNeeded--; }
+    progress();
+}
+
+function SetStatusChanged(status) {
+    byId("status").textContent = status;
+    if (/sending client info|starting lua/i.test(status)) { byId("fill").style.width = "100%"; byId("file").textContent = ""; }
+}
+</script>
+</body>
+</html>
